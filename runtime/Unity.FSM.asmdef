@@ -1,0 +1,5 @@
+{
+	"name": "Unity.FSM",
+	"rootNamespace": "Unity.FSM",
+    "allowUnsafeCode": true
+}

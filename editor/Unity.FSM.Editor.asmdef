@@ -1,0 +1,18 @@
+{
+    "name": "Unity.FSM.Editor",
+    "rootNamespace": "Unity.FSM.Editor",
+    "references": [
+        "Unity.FSM"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
