@@ -37,10 +37,12 @@ namespace Unity.FSM
 
         void Change<T>() where T : IState;
 
-        void Enter();
+        void OnStateEnter();
 
-        void Execute(float delta);
+        void OnStateUpdate(float delta);
 
-        void Exit();
+		void OnStateFixedUpdate(float delta);
+
+		void OnStateExit();
     }
 }

@@ -10,30 +10,31 @@ namespace Unity.FSM
 {
 	public partial interface IMachine
 	{
-		[DisallowMultipleComponent]
 		public abstract class Executor : MonoBehaviour 
 		{
-			public IMachine machine { get; init; } = null;
+			public IMachine machine { get; protected internal set; } = null;
 		}
 
+		[DisallowMultipleComponent]
 		public class UpdateExecutor : Executor
 		{
 			void Update()
 			{
 				if (null != machine && !machine.isPaused)
 				{
-					machine.Execute(Time.deltaTime);
+					machine.OnStateUpdate(Time.deltaTime);
 				}
 			}
 		}
 
+		[DisallowMultipleComponent]
 		public class FixedUpdateExecutor : Executor
 		{
 			void FixedUpdate()
 			{
 				if (null != machine && !machine.isPaused)
 				{
-					machine.Execute(Time.fixedDeltaTime);
+					machine.OnStateFixedUpdate(Time.fixedDeltaTime);
 				}
 			}
 		}

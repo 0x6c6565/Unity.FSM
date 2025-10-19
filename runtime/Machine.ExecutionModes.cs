@@ -8,11 +8,12 @@ namespace Unity.FSM
 {
 	public partial interface IMachine
 	{
-		public enum ExecuteMode
+		[Flags]
+		public enum ExecutionModes
 		{
-			Update = 0,
-			FixedUpdate,
-			Manual
+			None = 0,
+			Update = 0x1,
+			FixedUpdate = 0x2,
 		}
 	}
 }

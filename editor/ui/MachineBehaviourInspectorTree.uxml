@@ -1,0 +1,14 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:VisualElement name="Properties" style="flex-grow: 1;">
+        <ui:Foldout text="Properties&#10;" toggle-on-label-click="true" name="Properties" style="-unity-font-style: normal;">
+            <uie:PropertyField binding-path="&lt;timeInState&gt;k__BackingField" name="timeInState" />
+            <ui:VisualElement name="InitialClassTypeDropdown" focusable="false" style="flex-grow: 1; flex-direction: row;">
+                <ui:Label text="InitialClassType" name="InitialClassTypeLabel" style="flex-grow: 0;" />
+                <ui:Button text="initialClassType" name="InitialClassTypeButton" style="flex-grow: 1; flex-shrink: 1;" />
+            </ui:VisualElement>
+            <uie:EnumFlagsField label="executionMode" value="DynamicTransform" type="UnityEngine.UIElements.UsageHints, UnityEngine.UIElementsModule" binding-path="&lt;executionMode&gt;k__BackingField" name="ExecutionModes" />
+            <uie:PropertyField name="IsPaused" binding-path="&lt;isPaused&gt;k__BackingField" />
+            <uie:PropertyField name="AutoLoadStateBehaviours" binding-path="&lt;autoLoadStateBehaviours&gt;k__BackingField" />
+        </ui:Foldout>
+    </ui:VisualElement>
+</ui:UXML>

@@ -8,12 +8,16 @@ namespace Unity.FSM
 {
     public partial interface IState
     {
-        void Enter(in IMachine machine);
+        void OnStateEnter(in IMachine machine);
 
-        void FirstExecute(in IMachine machine, float delta);
+        void OnStateFirstUpdate(in IMachine machine, float delta);
 
-		void Execute(in IMachine machine, float delta);
+		void OnStateUpdate(in IMachine machine, float delta);
 
-        void Exit(in IMachine machine);
+		void OnStateFirstFixedUpdate(in IMachine machine, float delta);
+
+		void OnStateFixedUpdate(in IMachine machine, float delta);
+
+		void OnStateExit(in IMachine machine);
 	}
 }

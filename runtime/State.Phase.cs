@@ -8,12 +8,14 @@ namespace Unity.FSM
 {
 	public partial interface IState
 	{
+		[Flags]
 		public enum Phase
 		{
-			None,
-			Entered,
-			Executed,
-			Exited
+			None			= 0x0,
+			Entered			= 0x1,
+			Updated			= 0x2,
+			FixedUpdated	= 0x4,
+			Exited			= 0x8
 		}
 	}
 }

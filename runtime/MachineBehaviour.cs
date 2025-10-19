@@ -15,7 +15,7 @@ namespace Unity.FSM
 	{
 		protected Dictionary<Type, IState> states { get; init; } = new Dictionary<Type, IState>();
 
-		[field: SerializeField] public string initialClassType { get; protected internal set; } = string.Empty;
+		[field: SerializeField] public string initialClassTypeName { get; protected internal set; } = string.Empty;
 
 		protected Stack<StateRef> current { get; init; } = new Stack<StateRef>();
 
@@ -25,8 +25,8 @@ namespace Unity.FSM
 
 		[field: SerializeField] public bool autoLoadStateBehaviours { get; protected internal set; } = true;
 
-		[field: SerializeField] public IMachine.ExecuteMode executeMode { get; protected internal set; } 
-			= IMachine.ExecuteMode.Update;
+		[field: SerializeField] public IMachine.ExecutionModes executionMode { get; protected internal set; } 
+			= IMachine.ExecutionModes.Update;
 
 		public bool hasCurrent => 0 < current?.Count;
 
@@ -53,25 +53,34 @@ namespace Unity.FSM
 
 		protected virtual void Start()
 		{
-			if (!string.IsNullOrEmpty(initialClassType))
+			if (!string.IsNullOrEmpty(initialClassTypeName))
 			{
-				Type type = Type.GetType(initialClassType);
+				Type type = Type.GetType(initialClassTypeName);
 				if (null != type)
 				{
 					Push(type);
 				}
 			}
 
-			switch (executeMode)
+			foreach (var flag in Enum.GetValues(typeof(IMachine.ExecutionModes)))
 			{
-				case IMachine.ExecuteMode.Update:
+				if ((IMachine.ExecutionModes)flag == (executionMode & (IMachine.ExecutionModes)flag))
+				{
+					switch (flag)
 					{
-						gameObject.AddComponent<IMachine.UpdateExecutor>();
-					} break;
-				case IMachine.ExecuteMode.FixedUpdate:
-					{
-						gameObject.AddComponent<IMachine.FixedUpdateExecutor>();
-					} break;
+						case IMachine.ExecutionModes.Update:
+							{
+								IMachine.Executor executor = gameObject.AddComponent<IMachine.UpdateExecutor>();
+								executor.machine = this;
+
+							} break;
+						case IMachine.ExecutionModes.FixedUpdate:
+							{
+								IMachine.Executor executor = gameObject.AddComponent<IMachine.FixedUpdateExecutor>();
+								executor.machine = this;
+							} break;
+					}
+				}
 			}
 		}
 
@@ -111,7 +120,7 @@ namespace Unity.FSM
 			return null != type && states.ContainsKey(type);
 		}
 
-		public void Enter()
+		public void OnStateEnter()
 		{
 			if (hasCurrent && HasNoPhase(current.Peek()))
 			{
@@ -120,38 +129,58 @@ namespace Unity.FSM
 				StateRef stateRef = current.Pop();
 				current.Push(new StateRef(stateRef.state, IState.Phase.Entered));
 
-				current.Peek().state.Enter(this);
+				current.Peek().state.OnStateEnter(this);
 			}
 		}
 
-		public void Execute(float delta) 
+		public void OnStateUpdate(float delta) 
 		{
-			if (hasCurrent && HasEnteredOrExecuted(current.Peek()) && !HasExited(current.Peek()))
+			if (hasCurrent && HasEntered(current.Peek()) && !HasExited(current.Peek()))
 			{
 				timeInState += delta;
 
-				if (!HasExecuted(current.Peek()))
+				if (!HasUpdated(current.Peek()))
 				{
 					StateRef stateRef = current.Pop();
-					current.Push(new StateRef(stateRef.state, IState.Phase.Executed));
+					current.Push(new StateRef(stateRef.state, stateRef.phase | IState.Phase.Updated));
 
-					current.Peek().state.FirstExecute(this, delta);
+					current.Peek().state.OnStateFirstUpdate(this, delta);
 				}
 				else
 				{
-					current.Peek().state.Execute(this, delta);
+					current.Peek().state.OnStateUpdate(this, delta);
 				}
 			}
 		}
 
-		public void Exit() 
+		public void OnStateFixedUpdate(float delta)
 		{
-			if (hasCurrent && HasEnteredOrExecuted(current.Peek()) && !HasExecuted(current.Peek()))
+			if (hasCurrent && HasEntered(current.Peek()) && !HasExited(current.Peek()))
+			{
+				timeInState += delta;
+
+				if (!HasFixedUpdated(current.Peek()))
+				{
+					StateRef stateRef = current.Pop();
+					current.Push(new StateRef(stateRef.state, stateRef.phase | IState.Phase.FixedUpdated));
+
+					current.Peek().state.OnStateFirstFixedUpdate(this, delta);
+				}
+				else
+				{
+					current.Peek().state.OnStateFixedUpdate(this, delta);
+				}
+			}
+		}
+
+		public void OnStateExit() 
+		{
+			if (hasCurrent && HasEntered(current.Peek()) && !HasExited(current.Peek()))
 			{
 				StateRef stateRef = current.Pop();
 				current.Push(new StateRef(stateRef.state, IState.Phase.Exited));
 
-				current.Peek().state.Exit(this);
+				current.Peek().state.OnStateExit(this);
 			}
 		}
 
@@ -174,9 +203,9 @@ namespace Unity.FSM
 		{
 			if (hasCurrent)
 			{
-				Exit();
+				OnStateExit();
 
-				current.Pop();
+				current.Pop(); // No need to set to phase to None.
 			}
 		}
 
@@ -187,7 +216,7 @@ namespace Unity.FSM
 			{
 				current.Push(new StateRef(states[type]));
 
-				Enter();
+				OnStateEnter();
 			}
 		}
 
@@ -196,7 +225,7 @@ namespace Unity.FSM
 		{
 			if (type?.GetInterfaces().Contains(typeof(IState)) ?? false)
 			{
-				initialClassType = type.Name;
+				initialClassTypeName = type.Name;
 			}
 		}
 
@@ -209,9 +238,9 @@ namespace Unity.FSM
 
 		bool HasNoPhase(in StateRef stateRef) => ComparePhase(stateRef, IState.Phase.None);
 		bool HasEntered(in StateRef stateRef) => ComparePhase(stateRef, IState.Phase.Entered);
-		bool HasExecuted(in StateRef stateRef) => ComparePhase(stateRef, IState.Phase.Executed);
-		bool HasEnteredOrExecuted(in StateRef stateRef) => HasEntered(stateRef) || HasExecuted(stateRef);
+		bool HasUpdated(in StateRef stateRef) => ComparePhase(stateRef, IState.Phase.Updated);
+		bool HasFixedUpdated(in StateRef stateRef) => ComparePhase(stateRef, IState.Phase.FixedUpdated);
 		bool HasExited(in StateRef stateRef) => ComparePhase(stateRef, IState.Phase.Exited);
-		bool ComparePhase(in StateRef stateRef, IState.Phase Phase) => stateRef.phase == Phase;
+		bool ComparePhase(in StateRef stateRef, IState.Phase Phase) => Phase == (stateRef.phase & Phase);
 	}
 }
