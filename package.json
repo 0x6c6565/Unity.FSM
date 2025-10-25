@@ -9,10 +9,17 @@
 		"fsm",
 		"finite state machine"
 	],
+	"samples": [
+		{
+			"displayName": "Example FSM",
+			"description": "A simple example using the MachineBehaviour and StateBehaviour implementations of IMachine and IState.",
+			"path": "samples~/example-fsm"
+		}
+	],
 	"dependencies": {},
-	"documentationUrl": "",
+	"documentationUrl": "https://github.com/0x6c6565/Unity.FSM/blob/master/readme.md",
 	"repository": {
-		"url": "",
+		"url": "https://github.com/0x6c6565/Unity.FSM",
 		"type": "git"
 	}
 }

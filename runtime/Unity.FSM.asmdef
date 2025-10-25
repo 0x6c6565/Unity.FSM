@@ -1,5 +1,14 @@
 {
-	"name": "Unity.FSM",
-	"rootNamespace": "Unity.FSM",
-    "allowUnsafeCode": true
+    "name": "Unity.FSM",
+    "rootNamespace": "Unity.FSM",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
