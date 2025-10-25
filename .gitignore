@@ -176,6 +176,7 @@ ClientBin/
 [Ss]tyle[Cc]op.*
 ~$*
 *~
+![Ss]amples~/
 !*CodeGen~
 *.dbmdl
 *.dbproj.schemaview
